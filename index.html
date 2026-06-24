@@ -1,12 +1,619 @@
 <!DOCTYPE html>
-<html><head>
+<html>
+<head>
+<style>
+    .sc-placeholder{background:rgba(255,255,255,.3);border:1px solid rgba(0,0,0,.5);
+      border-radius:2px;box-sizing:border-box;overflow:hidden}
+    @keyframes sc-shine{0%{background-position:100% 50%}100%{background-position:0% 50%}}
+    html.sc-dc-streaming .sc-placeholder,
+    html.sc-dc-streaming .sc-interp.sc-missing{position:relative;
+      background:color-mix(in srgb,currentColor 5%,transparent);
+      border-color:transparent}
+    html.sc-dc-streaming .sc-placeholder::before,
+    html.sc-dc-streaming .sc-interp.sc-missing::before{content:'';
+      position:absolute;inset:0;pointer-events:none;
+      background:linear-gradient(90deg,rgba(217,119,87,0) 25%,rgba(247,225,211,.95) 37%,rgba(217,119,87,0) 63%);
+      background-size:400% 100%;animation:sc-shine 1.4s ease infinite}
+    html.sc-dc-streaming .sc-placeholder:nth-child(n+9 of .sc-placeholder)::before,
+    html.sc-dc-streaming .sc-interp.sc-missing:nth-child(n+9 of .sc-interp.sc-missing)::before{animation:none;
+      background:color-mix(in srgb,currentColor 8%,transparent)}
+    .sc-placeholder-error{padding:4px 8px;font:11px/1.4 ui-monospace,monospace;
+      color:rgba(0,0,0,.7);word-break:break-word}
+    .sc-interp.sc-missing{display:inline-block;width:2em;height:1em;overflow:hidden;
+      vertical-align:text-bottom;background:rgba(255,255,255,.3);border:1px solid rgba(0,0,0,.5);
+      border-radius:2px;box-sizing:border-box;color:transparent;
+      user-select:none}
+    .sc-interp.sc-unresolved{font-family:ui-monospace,monospace;font-size:.85em;
+      color:rgba(0,0,0,.5);background:rgba(0,0,0,.05);border-radius:3px;
+      padding:0 3px}
+    .sc-host.sc-has-error{position:relative}
+    .sc-logic-error{position:absolute;top:8px;left:8px;z-index:2147483647;max-width:60ch;
+      padding:6px 10px;background:#b00020;color:#fff;font:12px/1.4 ui-monospace,monospace;
+      border-radius:4px;white-space:pre-wrap;pointer-events:none}
+    /* Mirrors PRINT_BASELINE_CSS in apps/web deck-stage-export.ts — keep both
+       in sync until dc-runtime regains a build step. */
+    @media print {
+      @page { margin: 0.5cm; }
+      figure, table { break-inside: avoid; }
+      #dc-root, #dc-root > .sc-host { height: auto; }
+      *, *::before, *::after {
+        print-color-adjust: exact; -webkit-print-color-adjust: exact;
+        backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
+        animation-delay: -99s !important; animation-duration: .001s !important;
+        animation-iteration-count: 1 !important; animation-fill-mode: both !important;
+        animation-play-state: running !important; transition-duration: 0s !important;
+      }
+    }
+  </style>
 <meta charset="utf-8">
-<title>Agility Hub</title>
+<title>Agility Hub — Dog agility learning hub</title>
 <meta name="description" content="Agility Hub — video library, blog, and class schedules.">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<style>x-dc{display:none!important}</style>
+<style></style><link rel="preconnect" href="https://fonts.googleapis.com" data-dc-tpl="1"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" data-dc-tpl="2"><style data-dc-tpl="3">/* hebrew */
+@font-face {
+  font-family: 'Assistant';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("assets/fonts/assistant-hebrew.woff2") format('woff2');
+  unicode-range: U+0307-0308, U+0590-05FF, U+200C-2010, U+20AA, U+25CC, U+FB1D-FB4F;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Assistant';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("assets/fonts/assistant-latin-ext.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Assistant';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("assets/fonts/assistant-latin.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* hebrew */
+@font-face {
+  font-family: 'Assistant';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("assets/fonts/assistant-hebrew.woff2") format('woff2');
+  unicode-range: U+0307-0308, U+0590-05FF, U+200C-2010, U+20AA, U+25CC, U+FB1D-FB4F;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Assistant';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("assets/fonts/assistant-latin-ext.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Assistant';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("assets/fonts/assistant-latin.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* hebrew */
+@font-face {
+  font-family: 'Assistant';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("assets/fonts/assistant-hebrew.woff2") format('woff2');
+  unicode-range: U+0307-0308, U+0590-05FF, U+200C-2010, U+20AA, U+25CC, U+FB1D-FB4F;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Assistant';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("assets/fonts/assistant-latin-ext.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Assistant';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("assets/fonts/assistant-latin.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* hebrew */
+@font-face {
+  font-family: 'Assistant';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("assets/fonts/assistant-hebrew.woff2") format('woff2');
+  unicode-range: U+0307-0308, U+0590-05FF, U+200C-2010, U+20AA, U+25CC, U+FB1D-FB4F;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Assistant';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("assets/fonts/assistant-latin-ext.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Assistant';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("assets/fonts/assistant-latin.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Hanken Grotesk';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("assets/fonts/hanken-grotesk-cyrillic-ext.woff2") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Hanken Grotesk';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("assets/fonts/hanken-grotesk-vietnamese.woff2") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Hanken Grotesk';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("assets/fonts/hanken-grotesk-latin-ext.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Hanken Grotesk';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("assets/fonts/hanken-grotesk-latin.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Hanken Grotesk';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("assets/fonts/hanken-grotesk-cyrillic-ext.woff2") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Hanken Grotesk';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("assets/fonts/hanken-grotesk-vietnamese.woff2") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Hanken Grotesk';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("assets/fonts/hanken-grotesk-latin-ext.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Hanken Grotesk';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("assets/fonts/hanken-grotesk-latin.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Hanken Grotesk';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("assets/fonts/hanken-grotesk-cyrillic-ext.woff2") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Hanken Grotesk';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("assets/fonts/hanken-grotesk-vietnamese.woff2") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Hanken Grotesk';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("assets/fonts/hanken-grotesk-latin-ext.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Hanken Grotesk';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("assets/fonts/hanken-grotesk-latin.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Hanken Grotesk';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("assets/fonts/hanken-grotesk-cyrillic-ext.woff2") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Hanken Grotesk';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("assets/fonts/hanken-grotesk-vietnamese.woff2") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Hanken Grotesk';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("assets/fonts/hanken-grotesk-latin-ext.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Hanken Grotesk';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("assets/fonts/hanken-grotesk-latin.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* hebrew */
+@font-face {
+  font-family: 'Heebo';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("assets/fonts/heebo-hebrew.woff2") format('woff2');
+  unicode-range: U+0307-0308, U+0590-05FF, U+200C-2010, U+20AA, U+25CC, U+FB1D-FB4F;
+}
+/* math */
+@font-face {
+  font-family: 'Heebo';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("assets/fonts/heebo-math.woff2") format('woff2');
+  unicode-range: U+0302-0303, U+0305, U+0307-0308, U+0310, U+0312, U+0315, U+031A, U+0326-0327, U+032C, U+032F-0330, U+0332-0333, U+0338, U+033A, U+0346, U+034D, U+0391-03A1, U+03A3-03A9, U+03B1-03C9, U+03D1, U+03D5-03D6, U+03F0-03F1, U+03F4-03F5, U+2016-2017, U+2034-2038, U+203C, U+2040, U+2043, U+2047, U+2050, U+2057, U+205F, U+2070-2071, U+2074-208E, U+2090-209C, U+20D0-20DC, U+20E1, U+20E5-20EF, U+2100-2112, U+2114-2115, U+2117-2121, U+2123-214F, U+2190, U+2192, U+2194-21AE, U+21B0-21E5, U+21F1-21F2, U+21F4-2211, U+2213-2214, U+2216-22FF, U+2308-230B, U+2310, U+2319, U+231C-2321, U+2336-237A, U+237C, U+2395, U+239B-23B7, U+23D0, U+23DC-23E1, U+2474-2475, U+25AF, U+25B3, U+25B7, U+25BD, U+25C1, U+25CA, U+25CC, U+25FB, U+266D-266F, U+27C0-27FF, U+2900-2AFF, U+2B0E-2B11, U+2B30-2B4C, U+2BFE, U+3030, U+FF5B, U+FF5D, U+1D400-1D7FF, U+1EE00-1EEFF;
+}
+/* symbols */
+@font-face {
+  font-family: 'Heebo';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("assets/fonts/heebo-symbols.woff2") format('woff2');
+  unicode-range: U+0001-000C, U+000E-001F, U+007F-009F, U+20DD-20E0, U+20E2-20E4, U+2150-218F, U+2190, U+2192, U+2194-2199, U+21AF, U+21E6-21F0, U+21F3, U+2218-2219, U+2299, U+22C4-22C6, U+2300-243F, U+2440-244A, U+2460-24FF, U+25A0-27BF, U+2800-28FF, U+2921-2922, U+2981, U+29BF, U+29EB, U+2B00-2BFF, U+4DC0-4DFF, U+FFF9-FFFB, U+10140-1018E, U+10190-1019C, U+101A0, U+101D0-101FD, U+102E0-102FB, U+10E60-10E7E, U+1D2C0-1D2D3, U+1D2E0-1D37F, U+1F000-1F0FF, U+1F100-1F1AD, U+1F1E6-1F1FF, U+1F30D-1F30F, U+1F315, U+1F31C, U+1F31E, U+1F320-1F32C, U+1F336, U+1F378, U+1F37D, U+1F382, U+1F393-1F39F, U+1F3A7-1F3A8, U+1F3AC-1F3AF, U+1F3C2, U+1F3C4-1F3C6, U+1F3CA-1F3CE, U+1F3D4-1F3E0, U+1F3ED, U+1F3F1-1F3F3, U+1F3F5-1F3F7, U+1F408, U+1F415, U+1F41F, U+1F426, U+1F43F, U+1F441-1F442, U+1F444, U+1F446-1F449, U+1F44C-1F44E, U+1F453, U+1F46A, U+1F47D, U+1F4A3, U+1F4B0, U+1F4B3, U+1F4B9, U+1F4BB, U+1F4BF, U+1F4C8-1F4CB, U+1F4D6, U+1F4DA, U+1F4DF, U+1F4E3-1F4E6, U+1F4EA-1F4ED, U+1F4F7, U+1F4F9-1F4FB, U+1F4FD-1F4FE, U+1F503, U+1F507-1F50B, U+1F50D, U+1F512-1F513, U+1F53E-1F54A, U+1F54F-1F5FA, U+1F610, U+1F650-1F67F, U+1F687, U+1F68D, U+1F691, U+1F694, U+1F698, U+1F6AD, U+1F6B2, U+1F6B9-1F6BA, U+1F6BC, U+1F6C6-1F6CF, U+1F6D3-1F6D7, U+1F6E0-1F6EA, U+1F6F0-1F6F3, U+1F6F7-1F6FC, U+1F700-1F7FF, U+1F800-1F80B, U+1F810-1F847, U+1F850-1F859, U+1F860-1F887, U+1F890-1F8AD, U+1F8B0-1F8BB, U+1F8C0-1F8C1, U+1F900-1F90B, U+1F93B, U+1F946, U+1F984, U+1F996, U+1F9E9, U+1FA00-1FA6F, U+1FA70-1FA7C, U+1FA80-1FA89, U+1FA8F-1FAC6, U+1FACE-1FADC, U+1FADF-1FAE9, U+1FAF0-1FAF8, U+1FB00-1FBFF;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Heebo';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("assets/fonts/heebo-latin-ext.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Heebo';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("assets/fonts/heebo-latin.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* hebrew */
+@font-face {
+  font-family: 'Heebo';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("assets/fonts/heebo-hebrew.woff2") format('woff2');
+  unicode-range: U+0307-0308, U+0590-05FF, U+200C-2010, U+20AA, U+25CC, U+FB1D-FB4F;
+}
+/* math */
+@font-face {
+  font-family: 'Heebo';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("assets/fonts/heebo-math.woff2") format('woff2');
+  unicode-range: U+0302-0303, U+0305, U+0307-0308, U+0310, U+0312, U+0315, U+031A, U+0326-0327, U+032C, U+032F-0330, U+0332-0333, U+0338, U+033A, U+0346, U+034D, U+0391-03A1, U+03A3-03A9, U+03B1-03C9, U+03D1, U+03D5-03D6, U+03F0-03F1, U+03F4-03F5, U+2016-2017, U+2034-2038, U+203C, U+2040, U+2043, U+2047, U+2050, U+2057, U+205F, U+2070-2071, U+2074-208E, U+2090-209C, U+20D0-20DC, U+20E1, U+20E5-20EF, U+2100-2112, U+2114-2115, U+2117-2121, U+2123-214F, U+2190, U+2192, U+2194-21AE, U+21B0-21E5, U+21F1-21F2, U+21F4-2211, U+2213-2214, U+2216-22FF, U+2308-230B, U+2310, U+2319, U+231C-2321, U+2336-237A, U+237C, U+2395, U+239B-23B7, U+23D0, U+23DC-23E1, U+2474-2475, U+25AF, U+25B3, U+25B7, U+25BD, U+25C1, U+25CA, U+25CC, U+25FB, U+266D-266F, U+27C0-27FF, U+2900-2AFF, U+2B0E-2B11, U+2B30-2B4C, U+2BFE, U+3030, U+FF5B, U+FF5D, U+1D400-1D7FF, U+1EE00-1EEFF;
+}
+/* symbols */
+@font-face {
+  font-family: 'Heebo';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("assets/fonts/heebo-symbols.woff2") format('woff2');
+  unicode-range: U+0001-000C, U+000E-001F, U+007F-009F, U+20DD-20E0, U+20E2-20E4, U+2150-218F, U+2190, U+2192, U+2194-2199, U+21AF, U+21E6-21F0, U+21F3, U+2218-2219, U+2299, U+22C4-22C6, U+2300-243F, U+2440-244A, U+2460-24FF, U+25A0-27BF, U+2800-28FF, U+2921-2922, U+2981, U+29BF, U+29EB, U+2B00-2BFF, U+4DC0-4DFF, U+FFF9-FFFB, U+10140-1018E, U+10190-1019C, U+101A0, U+101D0-101FD, U+102E0-102FB, U+10E60-10E7E, U+1D2C0-1D2D3, U+1D2E0-1D37F, U+1F000-1F0FF, U+1F100-1F1AD, U+1F1E6-1F1FF, U+1F30D-1F30F, U+1F315, U+1F31C, U+1F31E, U+1F320-1F32C, U+1F336, U+1F378, U+1F37D, U+1F382, U+1F393-1F39F, U+1F3A7-1F3A8, U+1F3AC-1F3AF, U+1F3C2, U+1F3C4-1F3C6, U+1F3CA-1F3CE, U+1F3D4-1F3E0, U+1F3ED, U+1F3F1-1F3F3, U+1F3F5-1F3F7, U+1F408, U+1F415, U+1F41F, U+1F426, U+1F43F, U+1F441-1F442, U+1F444, U+1F446-1F449, U+1F44C-1F44E, U+1F453, U+1F46A, U+1F47D, U+1F4A3, U+1F4B0, U+1F4B3, U+1F4B9, U+1F4BB, U+1F4BF, U+1F4C8-1F4CB, U+1F4D6, U+1F4DA, U+1F4DF, U+1F4E3-1F4E6, U+1F4EA-1F4ED, U+1F4F7, U+1F4F9-1F4FB, U+1F4FD-1F4FE, U+1F503, U+1F507-1F50B, U+1F50D, U+1F512-1F513, U+1F53E-1F54A, U+1F54F-1F5FA, U+1F610, U+1F650-1F67F, U+1F687, U+1F68D, U+1F691, U+1F694, U+1F698, U+1F6AD, U+1F6B2, U+1F6B9-1F6BA, U+1F6BC, U+1F6C6-1F6CF, U+1F6D3-1F6D7, U+1F6E0-1F6EA, U+1F6F0-1F6F3, U+1F6F7-1F6FC, U+1F700-1F7FF, U+1F800-1F80B, U+1F810-1F847, U+1F850-1F859, U+1F860-1F887, U+1F890-1F8AD, U+1F8B0-1F8BB, U+1F8C0-1F8C1, U+1F900-1F90B, U+1F93B, U+1F946, U+1F984, U+1F996, U+1F9E9, U+1FA00-1FA6F, U+1FA70-1FA7C, U+1FA80-1FA89, U+1FA8F-1FAC6, U+1FACE-1FADC, U+1FADF-1FAE9, U+1FAF0-1FAF8, U+1FB00-1FBFF;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Heebo';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("assets/fonts/heebo-latin-ext.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Heebo';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("assets/fonts/heebo-latin.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* hebrew */
+@font-face {
+  font-family: 'Heebo';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("assets/fonts/heebo-hebrew.woff2") format('woff2');
+  unicode-range: U+0307-0308, U+0590-05FF, U+200C-2010, U+20AA, U+25CC, U+FB1D-FB4F;
+}
+/* math */
+@font-face {
+  font-family: 'Heebo';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("assets/fonts/heebo-math.woff2") format('woff2');
+  unicode-range: U+0302-0303, U+0305, U+0307-0308, U+0310, U+0312, U+0315, U+031A, U+0326-0327, U+032C, U+032F-0330, U+0332-0333, U+0338, U+033A, U+0346, U+034D, U+0391-03A1, U+03A3-03A9, U+03B1-03C9, U+03D1, U+03D5-03D6, U+03F0-03F1, U+03F4-03F5, U+2016-2017, U+2034-2038, U+203C, U+2040, U+2043, U+2047, U+2050, U+2057, U+205F, U+2070-2071, U+2074-208E, U+2090-209C, U+20D0-20DC, U+20E1, U+20E5-20EF, U+2100-2112, U+2114-2115, U+2117-2121, U+2123-214F, U+2190, U+2192, U+2194-21AE, U+21B0-21E5, U+21F1-21F2, U+21F4-2211, U+2213-2214, U+2216-22FF, U+2308-230B, U+2310, U+2319, U+231C-2321, U+2336-237A, U+237C, U+2395, U+239B-23B7, U+23D0, U+23DC-23E1, U+2474-2475, U+25AF, U+25B3, U+25B7, U+25BD, U+25C1, U+25CA, U+25CC, U+25FB, U+266D-266F, U+27C0-27FF, U+2900-2AFF, U+2B0E-2B11, U+2B30-2B4C, U+2BFE, U+3030, U+FF5B, U+FF5D, U+1D400-1D7FF, U+1EE00-1EEFF;
+}
+/* symbols */
+@font-face {
+  font-family: 'Heebo';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("assets/fonts/heebo-symbols.woff2") format('woff2');
+  unicode-range: U+0001-000C, U+000E-001F, U+007F-009F, U+20DD-20E0, U+20E2-20E4, U+2150-218F, U+2190, U+2192, U+2194-2199, U+21AF, U+21E6-21F0, U+21F3, U+2218-2219, U+2299, U+22C4-22C6, U+2300-243F, U+2440-244A, U+2460-24FF, U+25A0-27BF, U+2800-28FF, U+2921-2922, U+2981, U+29BF, U+29EB, U+2B00-2BFF, U+4DC0-4DFF, U+FFF9-FFFB, U+10140-1018E, U+10190-1019C, U+101A0, U+101D0-101FD, U+102E0-102FB, U+10E60-10E7E, U+1D2C0-1D2D3, U+1D2E0-1D37F, U+1F000-1F0FF, U+1F100-1F1AD, U+1F1E6-1F1FF, U+1F30D-1F30F, U+1F315, U+1F31C, U+1F31E, U+1F320-1F32C, U+1F336, U+1F378, U+1F37D, U+1F382, U+1F393-1F39F, U+1F3A7-1F3A8, U+1F3AC-1F3AF, U+1F3C2, U+1F3C4-1F3C6, U+1F3CA-1F3CE, U+1F3D4-1F3E0, U+1F3ED, U+1F3F1-1F3F3, U+1F3F5-1F3F7, U+1F408, U+1F415, U+1F41F, U+1F426, U+1F43F, U+1F441-1F442, U+1F444, U+1F446-1F449, U+1F44C-1F44E, U+1F453, U+1F46A, U+1F47D, U+1F4A3, U+1F4B0, U+1F4B3, U+1F4B9, U+1F4BB, U+1F4BF, U+1F4C8-1F4CB, U+1F4D6, U+1F4DA, U+1F4DF, U+1F4E3-1F4E6, U+1F4EA-1F4ED, U+1F4F7, U+1F4F9-1F4FB, U+1F4FD-1F4FE, U+1F503, U+1F507-1F50B, U+1F50D, U+1F512-1F513, U+1F53E-1F54A, U+1F54F-1F5FA, U+1F610, U+1F650-1F67F, U+1F687, U+1F68D, U+1F691, U+1F694, U+1F698, U+1F6AD, U+1F6B2, U+1F6B9-1F6BA, U+1F6BC, U+1F6C6-1F6CF, U+1F6D3-1F6D7, U+1F6E0-1F6EA, U+1F6F0-1F6F3, U+1F6F7-1F6FC, U+1F700-1F7FF, U+1F800-1F80B, U+1F810-1F847, U+1F850-1F859, U+1F860-1F887, U+1F890-1F8AD, U+1F8B0-1F8BB, U+1F8C0-1F8C1, U+1F900-1F90B, U+1F93B, U+1F946, U+1F984, U+1F996, U+1F9E9, U+1FA00-1FA6F, U+1FA70-1FA7C, U+1FA80-1FA89, U+1FA8F-1FAC6, U+1FACE-1FADC, U+1FADF-1FAE9, U+1FAF0-1FAF8, U+1FB00-1FBFF;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Heebo';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("assets/fonts/heebo-latin-ext.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Heebo';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("assets/fonts/heebo-latin.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* hebrew */
+@font-face {
+  font-family: 'Heebo';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("assets/fonts/heebo-hebrew.woff2") format('woff2');
+  unicode-range: U+0307-0308, U+0590-05FF, U+200C-2010, U+20AA, U+25CC, U+FB1D-FB4F;
+}
+/* math */
+@font-face {
+  font-family: 'Heebo';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("assets/fonts/heebo-math.woff2") format('woff2');
+  unicode-range: U+0302-0303, U+0305, U+0307-0308, U+0310, U+0312, U+0315, U+031A, U+0326-0327, U+032C, U+032F-0330, U+0332-0333, U+0338, U+033A, U+0346, U+034D, U+0391-03A1, U+03A3-03A9, U+03B1-03C9, U+03D1, U+03D5-03D6, U+03F0-03F1, U+03F4-03F5, U+2016-2017, U+2034-2038, U+203C, U+2040, U+2043, U+2047, U+2050, U+2057, U+205F, U+2070-2071, U+2074-208E, U+2090-209C, U+20D0-20DC, U+20E1, U+20E5-20EF, U+2100-2112, U+2114-2115, U+2117-2121, U+2123-214F, U+2190, U+2192, U+2194-21AE, U+21B0-21E5, U+21F1-21F2, U+21F4-2211, U+2213-2214, U+2216-22FF, U+2308-230B, U+2310, U+2319, U+231C-2321, U+2336-237A, U+237C, U+2395, U+239B-23B7, U+23D0, U+23DC-23E1, U+2474-2475, U+25AF, U+25B3, U+25B7, U+25BD, U+25C1, U+25CA, U+25CC, U+25FB, U+266D-266F, U+27C0-27FF, U+2900-2AFF, U+2B0E-2B11, U+2B30-2B4C, U+2BFE, U+3030, U+FF5B, U+FF5D, U+1D400-1D7FF, U+1EE00-1EEFF;
+}
+/* symbols */
+@font-face {
+  font-family: 'Heebo';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("assets/fonts/heebo-symbols.woff2") format('woff2');
+  unicode-range: U+0001-000C, U+000E-001F, U+007F-009F, U+20DD-20E0, U+20E2-20E4, U+2150-218F, U+2190, U+2192, U+2194-2199, U+21AF, U+21E6-21F0, U+21F3, U+2218-2219, U+2299, U+22C4-22C6, U+2300-243F, U+2440-244A, U+2460-24FF, U+25A0-27BF, U+2800-28FF, U+2921-2922, U+2981, U+29BF, U+29EB, U+2B00-2BFF, U+4DC0-4DFF, U+FFF9-FFFB, U+10140-1018E, U+10190-1019C, U+101A0, U+101D0-101FD, U+102E0-102FB, U+10E60-10E7E, U+1D2C0-1D2D3, U+1D2E0-1D37F, U+1F000-1F0FF, U+1F100-1F1AD, U+1F1E6-1F1FF, U+1F30D-1F30F, U+1F315, U+1F31C, U+1F31E, U+1F320-1F32C, U+1F336, U+1F378, U+1F37D, U+1F382, U+1F393-1F39F, U+1F3A7-1F3A8, U+1F3AC-1F3AF, U+1F3C2, U+1F3C4-1F3C6, U+1F3CA-1F3CE, U+1F3D4-1F3E0, U+1F3ED, U+1F3F1-1F3F3, U+1F3F5-1F3F7, U+1F408, U+1F415, U+1F41F, U+1F426, U+1F43F, U+1F441-1F442, U+1F444, U+1F446-1F449, U+1F44C-1F44E, U+1F453, U+1F46A, U+1F47D, U+1F4A3, U+1F4B0, U+1F4B3, U+1F4B9, U+1F4BB, U+1F4BF, U+1F4C8-1F4CB, U+1F4D6, U+1F4DA, U+1F4DF, U+1F4E3-1F4E6, U+1F4EA-1F4ED, U+1F4F7, U+1F4F9-1F4FB, U+1F4FD-1F4FE, U+1F503, U+1F507-1F50B, U+1F50D, U+1F512-1F513, U+1F53E-1F54A, U+1F54F-1F5FA, U+1F610, U+1F650-1F67F, U+1F687, U+1F68D, U+1F691, U+1F694, U+1F698, U+1F6AD, U+1F6B2, U+1F6B9-1F6BA, U+1F6BC, U+1F6C6-1F6CF, U+1F6D3-1F6D7, U+1F6E0-1F6EA, U+1F6F0-1F6F3, U+1F6F7-1F6FC, U+1F700-1F7FF, U+1F800-1F80B, U+1F810-1F847, U+1F850-1F859, U+1F860-1F887, U+1F890-1F8AD, U+1F8B0-1F8BB, U+1F8C0-1F8C1, U+1F900-1F90B, U+1F93B, U+1F946, U+1F984, U+1F996, U+1F9E9, U+1FA00-1FA6F, U+1FA70-1FA7C, U+1FA80-1FA89, U+1FA8F-1FAC6, U+1FACE-1FADC, U+1FADF-1FAE9, U+1FAF0-1FAF8, U+1FB00-1FBFF;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Heebo';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("assets/fonts/heebo-latin-ext.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Heebo';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("assets/fonts/heebo-latin.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* hebrew */
+@font-face {
+  font-family: 'Heebo';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url("assets/fonts/heebo-hebrew.woff2") format('woff2');
+  unicode-range: U+0307-0308, U+0590-05FF, U+200C-2010, U+20AA, U+25CC, U+FB1D-FB4F;
+}
+/* math */
+@font-face {
+  font-family: 'Heebo';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url("assets/fonts/heebo-math.woff2") format('woff2');
+  unicode-range: U+0302-0303, U+0305, U+0307-0308, U+0310, U+0312, U+0315, U+031A, U+0326-0327, U+032C, U+032F-0330, U+0332-0333, U+0338, U+033A, U+0346, U+034D, U+0391-03A1, U+03A3-03A9, U+03B1-03C9, U+03D1, U+03D5-03D6, U+03F0-03F1, U+03F4-03F5, U+2016-2017, U+2034-2038, U+203C, U+2040, U+2043, U+2047, U+2050, U+2057, U+205F, U+2070-2071, U+2074-208E, U+2090-209C, U+20D0-20DC, U+20E1, U+20E5-20EF, U+2100-2112, U+2114-2115, U+2117-2121, U+2123-214F, U+2190, U+2192, U+2194-21AE, U+21B0-21E5, U+21F1-21F2, U+21F4-2211, U+2213-2214, U+2216-22FF, U+2308-230B, U+2310, U+2319, U+231C-2321, U+2336-237A, U+237C, U+2395, U+239B-23B7, U+23D0, U+23DC-23E1, U+2474-2475, U+25AF, U+25B3, U+25B7, U+25BD, U+25C1, U+25CA, U+25CC, U+25FB, U+266D-266F, U+27C0-27FF, U+2900-2AFF, U+2B0E-2B11, U+2B30-2B4C, U+2BFE, U+3030, U+FF5B, U+FF5D, U+1D400-1D7FF, U+1EE00-1EEFF;
+}
+/* symbols */
+@font-face {
+  font-family: 'Heebo';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url("assets/fonts/heebo-symbols.woff2") format('woff2');
+  unicode-range: U+0001-000C, U+000E-001F, U+007F-009F, U+20DD-20E0, U+20E2-20E4, U+2150-218F, U+2190, U+2192, U+2194-2199, U+21AF, U+21E6-21F0, U+21F3, U+2218-2219, U+2299, U+22C4-22C6, U+2300-243F, U+2440-244A, U+2460-24FF, U+25A0-27BF, U+2800-28FF, U+2921-2922, U+2981, U+29BF, U+29EB, U+2B00-2BFF, U+4DC0-4DFF, U+FFF9-FFFB, U+10140-1018E, U+10190-1019C, U+101A0, U+101D0-101FD, U+102E0-102FB, U+10E60-10E7E, U+1D2C0-1D2D3, U+1D2E0-1D37F, U+1F000-1F0FF, U+1F100-1F1AD, U+1F1E6-1F1FF, U+1F30D-1F30F, U+1F315, U+1F31C, U+1F31E, U+1F320-1F32C, U+1F336, U+1F378, U+1F37D, U+1F382, U+1F393-1F39F, U+1F3A7-1F3A8, U+1F3AC-1F3AF, U+1F3C2, U+1F3C4-1F3C6, U+1F3CA-1F3CE, U+1F3D4-1F3E0, U+1F3ED, U+1F3F1-1F3F3, U+1F3F5-1F3F7, U+1F408, U+1F415, U+1F41F, U+1F426, U+1F43F, U+1F441-1F442, U+1F444, U+1F446-1F449, U+1F44C-1F44E, U+1F453, U+1F46A, U+1F47D, U+1F4A3, U+1F4B0, U+1F4B3, U+1F4B9, U+1F4BB, U+1F4BF, U+1F4C8-1F4CB, U+1F4D6, U+1F4DA, U+1F4DF, U+1F4E3-1F4E6, U+1F4EA-1F4ED, U+1F4F7, U+1F4F9-1F4FB, U+1F4FD-1F4FE, U+1F503, U+1F507-1F50B, U+1F50D, U+1F512-1F513, U+1F53E-1F54A, U+1F54F-1F5FA, U+1F610, U+1F650-1F67F, U+1F687, U+1F68D, U+1F691, U+1F694, U+1F698, U+1F6AD, U+1F6B2, U+1F6B9-1F6BA, U+1F6BC, U+1F6C6-1F6CF, U+1F6D3-1F6D7, U+1F6E0-1F6EA, U+1F6F0-1F6F3, U+1F6F7-1F6FC, U+1F700-1F7FF, U+1F800-1F80B, U+1F810-1F847, U+1F850-1F859, U+1F860-1F887, U+1F890-1F8AD, U+1F8B0-1F8BB, U+1F8C0-1F8C1, U+1F900-1F90B, U+1F93B, U+1F946, U+1F984, U+1F996, U+1F9E9, U+1FA00-1FA6F, U+1FA70-1FA7C, U+1FA80-1FA89, U+1FA8F-1FAC6, U+1FACE-1FADC, U+1FADF-1FAE9, U+1FAF0-1FAF8, U+1FB00-1FBFF;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Heebo';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url("assets/fonts/heebo-latin-ext.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Heebo';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url("assets/fonts/heebo-latin.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Sora';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("assets/fonts/sora-latin-ext.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Sora';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("assets/fonts/sora-latin.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Sora';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("assets/fonts/sora-latin-ext.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Sora';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("assets/fonts/sora-latin.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Sora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("assets/fonts/sora-latin-ext.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Sora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("assets/fonts/sora-latin.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Sora';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url("assets/fonts/sora-latin-ext.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Sora';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url("assets/fonts/sora-latin.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+</style><meta name="description" content="Free dog-agility video tutorials sorted by level, plus articles, classes and a friendly club. Learn, train and compete — in English and Hebrew." data-dc-tpl="4"><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' sc-camel-view-box='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230A1F3C'/%3E%3Cpath d='M25 70h50M37 70V42M63 70V42M37 53h26' stroke='%23C8F031' stroke-width='7' stroke-linecap='round'/%3E%3C/svg%3E" data-dc-tpl="5"><style data-dc-tpl="6">
+  *{box-sizing:border-box;}
+  body{margin:0;}
+  ::selection{background:#C8F031;color:#0A1F3C;}
+  ::-webkit-scrollbar{width:10px;height:10px;}
+  ::-webkit-scrollbar-thumb{background:#cdd7e6;border-radius:6px;}
+  @keyframes agi-pop{from{opacity:0;transform:scale(.96);}to{opacity:1;transform:none;}}
+  [dir="rtl"] input{text-align:right;}
+</style>
+<script src="assets/vendor/react.production.min.js"></script>
+<script src="assets/vendor/react-dom.production.min.js"></script>
 <script src="assets/dc-runtime.js"></script>
 </head>
 <body>
+
 <x-dc>
 
 <helmet>
@@ -1139,6 +1746,436 @@
 
 </div>
 </x-dc>
+<div id="dc-prerender"><div class="sc-host" data-sc-name="index"><div data-dc-tpl="7" dir="ltr" style="font-family: &quot;Hanken Grotesk&quot;, system-ui, sans-serif; background: rgb(244, 247, 251); color: rgb(10, 31, 60); min-height: 100vh;">
+
+  <header data-dc-tpl="8" style="position: sticky; top: 0px; z-index: 50; background: rgba(255, 255, 255, 0.82); backdrop-filter: blur(14px); border-bottom: 1px solid rgb(226, 232, 242);">
+    <div data-dc-tpl="9" style="max-width: 1200px; margin: 0px auto; padding: 12px 24px; min-height: 72px; display: flex; align-items: center; justify-content: space-between; gap: 12px 18px; flex-wrap: wrap;">
+      <button data-dc-tpl="10" style="display: flex; align-items: center; gap: 11px; background: none; border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; cursor: pointer; padding: 0px; flex: 0 0 auto;">
+        <span data-dc-tpl="11" style="width: 42px; height: 42px; border-radius: 12px; background: linear-gradient(135deg, rgb(37, 99, 235), rgb(10, 31, 60)); display: flex; align-items: center; justify-content: center; box-shadow: rgba(37, 99, 235, 0.32) 0px 6px 16px; flex: 0 0 auto;">
+          <svg data-dc-tpl="12" width="23" height="23" viewBox="0 0 24 24" fill="none"><path data-dc-tpl="13" d="M3 18h18M6 18V9M18 18V9M6 12h12" stroke="#C8F031" stroke-width="2.3" stroke-linecap="round"></path></svg>
+        </span>
+        <span data-dc-tpl="14" style="display: flex; flex-direction: column; line-height: 1; text-align: start;">
+          <span data-dc-tpl="15" style="font-family: Sora; font-weight: 800; font-size: 18px; letter-spacing: -0.025em; white-space: nowrap;">Agility Hub</span>
+          <span data-dc-tpl="16" style="font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: rgb(107, 124, 147); font-weight: 600; margin-top: 4px; white-space: nowrap;"><span class="sc-interp">Learn · Train · Compete</span></span>
+        </span>
+      </button>
+      <nav data-dc-tpl="17" style="display: flex; align-items: center; gap: 2px; flex-wrap: wrap; justify-content: center; flex: 1 1 0%; min-width: 0px;">
+        
+          <button data-dc-tpl="19" class="scp0" style="font-family: inherit; font-weight: 600; font-size: 14.5px; border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; padding: 9px 12px; border-radius: 9px; cursor: pointer; white-space: nowrap; background: rgb(238, 243, 251); color: rgb(10, 31, 60);"><span class="sc-interp">Home</span></button>
+        
+          <button data-dc-tpl="19" class="scp0" style="font-family: inherit; font-weight: 600; font-size: 14.5px; border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; padding: 9px 12px; border-radius: 9px; cursor: pointer; white-space: nowrap; background: transparent; color: rgb(91, 107, 130);"><span class="sc-interp">Library</span></button>
+        
+          <button data-dc-tpl="19" class="scp0" style="font-family: inherit; font-weight: 600; font-size: 14.5px; border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; padding: 9px 12px; border-radius: 9px; cursor: pointer; white-space: nowrap; background: transparent; color: rgb(91, 107, 130);"><span class="sc-interp">Blog</span></button>
+        
+          <button data-dc-tpl="19" class="scp0" style="font-family: inherit; font-weight: 600; font-size: 14.5px; border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; padding: 9px 12px; border-radius: 9px; cursor: pointer; white-space: nowrap; background: transparent; color: rgb(91, 107, 130);"><span class="sc-interp">Classes</span></button>
+        
+          <button data-dc-tpl="19" class="scp0" style="font-family: inherit; font-weight: 600; font-size: 14.5px; border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; padding: 9px 12px; border-radius: 9px; cursor: pointer; white-space: nowrap; background: transparent; color: rgb(91, 107, 130);"><span class="sc-interp">Trainers</span></button>
+        
+          <button data-dc-tpl="19" class="scp0" style="font-family: inherit; font-weight: 600; font-size: 14.5px; border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; padding: 9px 12px; border-radius: 9px; cursor: pointer; white-space: nowrap; background: transparent; color: rgb(91, 107, 130);"><span class="sc-interp">About</span></button>
+        
+          <button data-dc-tpl="19" class="scp0" style="font-family: inherit; font-weight: 600; font-size: 14.5px; border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; padding: 9px 12px; border-radius: 9px; cursor: pointer; white-space: nowrap; background: transparent; color: rgb(91, 107, 130);"><span class="sc-interp">Contact</span></button>
+        
+      </nav>
+      <div data-dc-tpl="20" style="display: flex; align-items: center; gap: 10px;">
+        <button data-dc-tpl="21" title="עברית" class="scp1" style="display: flex; align-items: center; gap: 7px; font-family: &quot;Hanken Grotesk&quot;, sans-serif; font-weight: 700; font-size: 14px; color: rgb(10, 31, 60); background: rgb(238, 243, 251); border: 1px solid rgb(220, 230, 244); padding: 9px 14px; border-radius: 11px; cursor: pointer; white-space: nowrap;">
+          <svg data-dc-tpl="22" width="16" height="16" viewBox="0 0 24 24" fill="none"><circle data-dc-tpl="23" cx="12" cy="12" r="9" stroke="#2563EB" stroke-width="1.8"></circle><path data-dc-tpl="24" d="M3 12h18M12 3c2.6 2.4 2.6 15.6 0 18M12 3c-2.6 2.4-2.6 15.6 0 18" stroke="#2563EB" stroke-width="1.8"></path></svg>
+          <span class="sc-interp">עברית</span>
+        </button>
+        <button data-dc-tpl="25" class="scp2" style="font-family: Sora; font-weight: 700; font-size: 14px; background: rgb(10, 31, 60); color: rgb(255, 255, 255); border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; padding: 11px 18px; border-radius: 11px; cursor: pointer; white-space: nowrap;"><span class="sc-interp">Start learning</span></button>
+      </div>
+    </div>
+  </header>
+
+  
+  
+  <main data-dc-tpl="27">
+    <section data-dc-tpl="28" style="position: relative; overflow: hidden; background: radial-gradient(120% 150% at 82% 0%, rgb(27, 58, 102) 0%, rgb(10, 31, 60) 52%, rgb(7, 18, 38) 100%); color: rgb(255, 255, 255);">
+      <span data-dc-tpl="29" style="position: absolute; top: -80px; right: -60px; width: 340px; height: 340px; border-radius: 50%; background: radial-gradient(circle, rgba(37, 99, 235, 0.45), transparent 70%);"></span>
+      <span data-dc-tpl="30" style="position: absolute; bottom: -120px; left: -80px; width: 300px; height: 300px; border-radius: 50%; background: radial-gradient(circle, rgba(200, 240, 49, 0.14), transparent 70%);"></span>
+      <div data-dc-tpl="31" style="position: relative; max-width: 1200px; margin: 0px auto; padding: 84px 24px; display: grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); gap: 56px; align-items: center;">
+        <div data-dc-tpl="32">
+          <span data-dc-tpl="33" style="display: inline-flex; align-items: center; gap: 8px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.16); padding: 7px 14px; border-radius: 999px; font-size: 13px; font-weight: 600; letter-spacing: 0.02em;">
+            <span data-dc-tpl="34" style="width: 7px; height: 7px; border-radius: 50%; background: rgb(200, 240, 49); flex: 0 0 auto;"></span><span class="sc-interp">Free video tutorials for every level</span>
+          </span>
+          <h1 data-dc-tpl="35" style="font-family: Sora, sans-serif; font-weight: 800; font-size: clamp(38px, 5vw, 60px); line-height: 1.04; letter-spacing: -0.03em; margin: 22px 0px 0px;"><span class="sc-interp">Master dog agility,</span><br data-dc-tpl="36"><span class="sc-interp">one obstacle</span> <span data-dc-tpl="37" style="color: rgb(200, 240, 49);"><span class="sc-interp">at a time.</span></span></h1>
+          <p data-dc-tpl="38" style="font-size: 18px; line-height: 1.6; color: rgb(183, 196, 216); max-width: 480px; margin: 22px 0px 0px;"><span class="sc-interp">A growing library of step-by-step video lessons and field-tested articles — sorted by level, so you and your dog always know the next move.</span></p>
+          <div data-dc-tpl="39" style="display: flex; flex-wrap: wrap; gap: 14px; margin-top: 32px;">
+            <button data-dc-tpl="40" class="scp3" style="font-family: Sora; font-weight: 700; font-size: 15px; background: rgb(200, 240, 49); color: rgb(10, 31, 60); border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; padding: 15px 26px; border-radius: 13px; cursor: pointer; box-shadow: rgba(200, 240, 49, 0.28) 0px 10px 28px;"><span class="sc-interp">Browse the library →</span></button>
+            <button data-dc-tpl="41" class="scp4" style="font-family: Sora; font-weight: 700; font-size: 15px; background: rgba(255, 255, 255, 0.06); color: rgb(255, 255, 255); border: 1px solid rgba(255, 255, 255, 0.22); padding: 15px 26px; border-radius: 13px; cursor: pointer;"><span class="sc-interp">Read the blog</span></button>
+          </div>
+          <div data-dc-tpl="42" style="display: flex; gap: 34px; margin-top: 42px;">
+            <div data-dc-tpl="43"><div data-dc-tpl="44" style="font-family: Sora; font-weight: 800; font-size: 30px;"><span class="sc-interp">12</span></div><div data-dc-tpl="45" style="font-size: 13px; color: rgb(143, 160, 184); letter-spacing: 0.04em; text-transform: uppercase; font-weight: 600; margin-top: 3px;"><span class="sc-interp">Tutorials</span></div></div>
+            <div data-dc-tpl="46" style="width: 1px; background: rgba(255, 255, 255, 0.12);"></div>
+            <div data-dc-tpl="47"><div data-dc-tpl="48" style="font-family: Sora; font-weight: 800; font-size: 30px;">3</div><div data-dc-tpl="49" style="font-size: 13px; color: rgb(143, 160, 184); letter-spacing: 0.04em; text-transform: uppercase; font-weight: 600; margin-top: 3px;"><span class="sc-interp">Levels</span></div></div>
+            <div data-dc-tpl="50" style="width: 1px; background: rgba(255, 255, 255, 0.12);"></div>
+            <div data-dc-tpl="51"><div data-dc-tpl="52" style="font-family: Sora; font-weight: 800; font-size: 30px;"><span class="sc-interp">100%</span></div><div data-dc-tpl="53" style="font-size: 13px; color: rgb(143, 160, 184); letter-spacing: 0.04em; text-transform: uppercase; font-weight: 600; margin-top: 3px;"><span class="sc-interp">Free</span></div></div>
+          </div>
+        </div>
+        <div data-dc-tpl="54" style="position: relative; border-radius: 26px; overflow: hidden; background: linear-gradient(160deg, rgb(37, 99, 235), rgb(30, 58, 138)); box-shadow: rgba(7, 18, 38, 0.55) 0px 34px 70px; aspect-ratio: 4 / 3;">
+          <span data-dc-tpl="55" style="position: absolute; inset: 0px; background: radial-gradient(circle at 28% 22%, rgba(255, 255, 255, 0.22), transparent 55%);"></span>
+          <svg data-dc-tpl="56" viewBox="0 0 400 300" style="position: absolute; inset: 0px; width: 100%; height: 100%;">
+            <line data-dc-tpl="57" x1="20" y1="232" x2="380" y2="232" stroke="rgba(255,255,255,0.28)" stroke-width="2"></line>
+            <rect data-dc-tpl="58" x="64" y="150" width="7" height="84" rx="3" fill="rgba(255,255,255,0.85)"></rect>
+            <rect data-dc-tpl="59" x="120" y="150" width="7" height="84" rx="3" fill="rgba(255,255,255,0.85)"></rect>
+            <rect data-dc-tpl="60" x="60" y="158" width="71" height="9" rx="4" fill="#C8F031"></rect>
+            <rect data-dc-tpl="61" x="195" y="186" width="6" height="48" rx="3" fill="rgba(255,255,255,0.7)"></rect>
+            <rect data-dc-tpl="62" x="213" y="186" width="6" height="48" rx="3" fill="rgba(255,255,255,0.7)"></rect>
+            <rect data-dc-tpl="63" x="231" y="186" width="6" height="48" rx="3" fill="rgba(255,255,255,0.7)"></rect>
+            <rect data-dc-tpl="64" x="249" y="186" width="6" height="48" rx="3" fill="rgba(255,255,255,0.7)"></rect>
+            <path data-dc-tpl="65" d="M300 232 q40 -78 78 0" fill="none" stroke="#C8F031" stroke-width="9" stroke-linecap="round"></path>
+          </svg>
+          <span data-dc-tpl="66" style="position: absolute; top: 18px; inset-inline-start: 18px; display: inline-flex; align-items: center; gap: 7px; background: rgba(255, 255, 255, 0.92); color: rgb(29, 78, 216); font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 999px;">▶ <span class="sc-interp">Now playing</span></span>
+          <span data-dc-tpl="67" style="position: absolute; bottom: 16px; inset-inline: 18px; font-size: 12px; color: rgba(255, 255, 255, 0.75); font-weight: 500;"><span class="sc-interp">Drop your own action photo here later — this is a placeholder.</span></span>
+        </div>
+      </div>
+    </section>
+
+    <section data-dc-tpl="68" style="max-width: 1200px; margin: 0px auto; padding: 84px 24px 20px;">
+      <span data-dc-tpl="69" style="font-size: 13px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: rgb(37, 99, 235);"><span class="sc-interp">Choose your path</span></span>
+      <h2 data-dc-tpl="70" style="font-family: Sora, sans-serif; font-weight: 800; font-size: clamp(28px, 3.5vw, 40px); letter-spacing: -0.02em; margin: 10px 0px 0px;"><span class="sc-interp">Train by level</span></h2>
+      <p data-dc-tpl="71" style="font-size: 17px; color: rgb(91, 107, 130); margin: 10px 0px 36px; max-width: 560px;"><span class="sc-interp">Start where you are. Each track builds on the last, from first contacts to championship-level handling.</span></p>
+      <div data-dc-tpl="72" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 22px;">
+        
+          <button data-dc-tpl="74" class="scp5" style="text-align: start; background: rgb(255, 255, 255); border: 1px solid rgb(232, 237, 245); border-radius: 20px; padding: 0px; overflow: hidden; cursor: pointer; display: flex; flex-direction: column; box-shadow: rgba(10, 31, 60, 0.04) 0px 1px 2px;">
+            <span data-dc-tpl="75" style="height: 8px; background: linear-gradient(135deg, rgb(52, 211, 153), rgb(5, 150, 105));"></span>
+            <span data-dc-tpl="76" style="padding: 24px; display: flex; flex-direction: column; gap: 12px;">
+              <span data-dc-tpl="77" style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                <span data-dc-tpl="78" style="font-family: Sora; font-weight: 800; font-size: 22px; color: rgb(4, 120, 87);"><span class="sc-interp">Beginner</span></span>
+                <span data-dc-tpl="79" style="font-size: 13px; font-weight: 600; color: rgb(148, 163, 184);"><span class="sc-interp">4 lessons</span></span>
+              </span>
+              <span data-dc-tpl="80" style="font-size: 14.5px; color: rgb(91, 107, 130); line-height: 1.55;"><span class="sc-interp">Foundations, focus and your dog's very first obstacles.</span></span>
+              <span data-dc-tpl="81" style="height: 7px; background: rgb(238, 242, 248); border-radius: 99px; overflow: hidden; margin-top: 4px;"><span data-dc-tpl="82" style="display: block; height: 100%; width: 0%; background: linear-gradient(135deg, rgb(52, 211, 153), rgb(5, 150, 105)); border-radius: 99px;"></span></span>
+              <span data-dc-tpl="83" style="display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 2px;">
+                <span data-dc-tpl="84" style="font-size: 12.5px; color: rgb(148, 163, 184); font-weight: 600;"><span class="sc-interp">0 of 4 watched</span></span>
+                <span data-dc-tpl="85" style="font-family: Sora; font-weight: 700; font-size: 13px; color: rgb(4, 120, 87);"><span class="sc-interp">Explore →</span></span>
+              </span>
+            </span>
+          </button>
+        
+          <button data-dc-tpl="74" class="scp5" style="text-align: start; background: rgb(255, 255, 255); border: 1px solid rgb(232, 237, 245); border-radius: 20px; padding: 0px; overflow: hidden; cursor: pointer; display: flex; flex-direction: column; box-shadow: rgba(10, 31, 60, 0.04) 0px 1px 2px;">
+            <span data-dc-tpl="75" style="height: 8px; background: linear-gradient(135deg, rgb(96, 165, 250), rgb(37, 99, 235));"></span>
+            <span data-dc-tpl="76" style="padding: 24px; display: flex; flex-direction: column; gap: 12px;">
+              <span data-dc-tpl="77" style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                <span data-dc-tpl="78" style="font-family: Sora; font-weight: 800; font-size: 22px; color: rgb(29, 78, 216);"><span class="sc-interp">Intermediate</span></span>
+                <span data-dc-tpl="79" style="font-size: 13px; font-weight: 600; color: rgb(148, 163, 184);"><span class="sc-interp">4 lessons</span></span>
+              </span>
+              <span data-dc-tpl="80" style="font-size: 14.5px; color: rgb(91, 107, 130); line-height: 1.55;"><span class="sc-interp">Weaves, contacts and smooth multi-obstacle sequences.</span></span>
+              <span data-dc-tpl="81" style="height: 7px; background: rgb(238, 242, 248); border-radius: 99px; overflow: hidden; margin-top: 4px;"><span data-dc-tpl="82" style="display: block; height: 100%; width: 0%; background: linear-gradient(135deg, rgb(96, 165, 250), rgb(37, 99, 235)); border-radius: 99px;"></span></span>
+              <span data-dc-tpl="83" style="display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 2px;">
+                <span data-dc-tpl="84" style="font-size: 12.5px; color: rgb(148, 163, 184); font-weight: 600;"><span class="sc-interp">0 of 4 watched</span></span>
+                <span data-dc-tpl="85" style="font-family: Sora; font-weight: 700; font-size: 13px; color: rgb(29, 78, 216);"><span class="sc-interp">Explore →</span></span>
+              </span>
+            </span>
+          </button>
+        
+          <button data-dc-tpl="74" class="scp5" style="text-align: start; background: rgb(255, 255, 255); border: 1px solid rgb(232, 237, 245); border-radius: 20px; padding: 0px; overflow: hidden; cursor: pointer; display: flex; flex-direction: column; box-shadow: rgba(10, 31, 60, 0.04) 0px 1px 2px;">
+            <span data-dc-tpl="75" style="height: 8px; background: linear-gradient(135deg, rgb(167, 139, 250), rgb(109, 40, 217));"></span>
+            <span data-dc-tpl="76" style="padding: 24px; display: flex; flex-direction: column; gap: 12px;">
+              <span data-dc-tpl="77" style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                <span data-dc-tpl="78" style="font-family: Sora; font-weight: 800; font-size: 22px; color: rgb(109, 40, 217);"><span class="sc-interp">Advanced</span></span>
+                <span data-dc-tpl="79" style="font-size: 13px; font-weight: 600; color: rgb(148, 163, 184);"><span class="sc-interp">4 lessons</span></span>
+              </span>
+              <span data-dc-tpl="80" style="font-size: 14.5px; color: rgb(91, 107, 130); line-height: 1.55;"><span class="sc-interp">Threadles, distance work and race-winning strategy.</span></span>
+              <span data-dc-tpl="81" style="height: 7px; background: rgb(238, 242, 248); border-radius: 99px; overflow: hidden; margin-top: 4px;"><span data-dc-tpl="82" style="display: block; height: 100%; width: 0%; background: linear-gradient(135deg, rgb(167, 139, 250), rgb(109, 40, 217)); border-radius: 99px;"></span></span>
+              <span data-dc-tpl="83" style="display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 2px;">
+                <span data-dc-tpl="84" style="font-size: 12.5px; color: rgb(148, 163, 184); font-weight: 600;"><span class="sc-interp">0 of 4 watched</span></span>
+                <span data-dc-tpl="85" style="font-family: Sora; font-weight: 700; font-size: 13px; color: rgb(109, 40, 217);"><span class="sc-interp">Explore →</span></span>
+              </span>
+            </span>
+          </button>
+        
+      </div>
+    </section>
+
+    <section data-dc-tpl="86" style="max-width: 1200px; margin: 0px auto; padding: 56px 24px 20px;">
+      <div data-dc-tpl="87" style="display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 30px;">
+        <div data-dc-tpl="88">
+          <span data-dc-tpl="89" style="font-size: 13px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: rgb(37, 99, 235);"><span class="sc-interp">Fresh from the field</span></span>
+          <h2 data-dc-tpl="90" style="font-family: Sora, sans-serif; font-weight: 800; font-size: clamp(28px, 3.5vw, 40px); letter-spacing: -0.02em; margin: 10px 0px 0px;"><span class="sc-interp">Latest tutorials</span></h2>
+        </div>
+        <button data-dc-tpl="91" class="scp6" style="font-family: Sora; font-weight: 700; font-size: 14px; color: rgb(37, 99, 235); background: rgb(234, 241, 254); border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; padding: 11px 18px; border-radius: 11px; cursor: pointer;"><span class="sc-interp">View all 12 →</span></button>
+      </div>
+      <div data-dc-tpl="92" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px;">
+        
+          <div data-dc-tpl="94" class="scp7" style="background: rgb(255, 255, 255); border: 1px solid rgb(232, 237, 245); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; box-shadow: rgba(10, 31, 60, 0.04) 0px 1px 2px;">
+            <button data-dc-tpl="95" style="position: relative; border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; padding: 0px; cursor: pointer; display: block; height: 172px; background: linear-gradient(135deg, rgb(52, 211, 153), rgb(5, 150, 105));">
+              <span data-dc-tpl="96" style="position: absolute; inset: 0px; background: radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.28), transparent 52%);"></span>
+              <span data-dc-tpl="97" style="position: absolute; top: 12px; inset-inline-start: 12px; background: rgba(255, 255, 255, 0.94); color: rgb(4, 120, 87); font-size: 11px; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; padding: 5px 10px; border-radius: 999px;"><span class="sc-interp">Beginner</span></span>
+              <span data-dc-tpl="98" style="position: absolute; bottom: 12px; inset-inline-end: 12px; background: rgba(10, 31, 60, 0.8); color: rgb(255, 255, 255); font-size: 12px; font-weight: 600; padding: 4px 9px; border-radius: 7px;"><span class="sc-interp">7:12</span></span>
+              <span data-dc-tpl="99" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 58px; height: 58px; border-radius: 50%; background: rgba(255, 255, 255, 0.96); display: flex; align-items: center; justify-content: center; box-shadow: rgba(10, 31, 60, 0.28) 0px 10px 26px;"><svg data-dc-tpl="100" width="20" height="20" viewBox="0 0 24 24" fill="#0A1F3C"><path data-dc-tpl="101" d="M8 5v14l11-7z"></path></svg></span>
+            </button>
+            <div data-dc-tpl="102" style="padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 8px; flex: 1 1 0%;">
+              <span data-dc-tpl="103" style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: rgb(148, 163, 184);"><span class="sc-interp">Foundations</span></span>
+              <h3 data-dc-tpl="104" style="font-family: Sora; font-weight: 700; font-size: 17px; line-height: 1.28; margin: 0px;"><span class="sc-interp">Building Confidence on First Contacts</span></h3>
+              <p data-dc-tpl="105" style="font-size: 13.5px; color: rgb(91, 107, 130); margin: 0px; line-height: 1.5; flex: 1 1 0%;"><span class="sc-interp">Help a nervous dog feel safe approaching new equipment with simple shaping games.</span></p>
+              <div data-dc-tpl="106" style="display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 6px;">
+                <button data-dc-tpl="107" style="font-family: Sora; font-weight: 700; font-size: 13px; color: rgb(37, 99, 235); background: none; border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; padding: 0px; cursor: pointer;"><span class="sc-interp">Watch lesson →</span></button>
+                <button data-dc-tpl="108" style="font-family: inherit; font-weight: 700; font-size: 12px; padding: 6px 11px; border-radius: 8px; cursor: pointer; background: rgb(255, 255, 255); color: rgb(91, 107, 130); border: 1px solid rgb(226, 232, 242);"><span class="sc-interp">Mark done</span></button>
+              </div>
+            </div>
+          </div>
+        
+          <div data-dc-tpl="94" class="scp7" style="background: rgb(255, 255, 255); border: 1px solid rgb(232, 237, 245); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; box-shadow: rgba(10, 31, 60, 0.04) 0px 1px 2px;">
+            <button data-dc-tpl="95" style="position: relative; border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; padding: 0px; cursor: pointer; display: block; height: 172px; background: linear-gradient(135deg, rgb(52, 211, 153), rgb(5, 150, 105));">
+              <span data-dc-tpl="96" style="position: absolute; inset: 0px; background: radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.28), transparent 52%);"></span>
+              <span data-dc-tpl="97" style="position: absolute; top: 12px; inset-inline-start: 12px; background: rgba(255, 255, 255, 0.94); color: rgb(4, 120, 87); font-size: 11px; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; padding: 5px 10px; border-radius: 999px;"><span class="sc-interp">Beginner</span></span>
+              <span data-dc-tpl="98" style="position: absolute; bottom: 12px; inset-inline-end: 12px; background: rgba(10, 31, 60, 0.8); color: rgb(255, 255, 255); font-size: 12px; font-weight: 600; padding: 4px 9px; border-radius: 7px;"><span class="sc-interp">9:04</span></span>
+              <span data-dc-tpl="99" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 58px; height: 58px; border-radius: 50%; background: rgba(255, 255, 255, 0.96); display: flex; align-items: center; justify-content: center; box-shadow: rgba(10, 31, 60, 0.28) 0px 10px 26px;"><svg data-dc-tpl="100" width="20" height="20" viewBox="0 0 24 24" fill="#0A1F3C"><path data-dc-tpl="101" d="M8 5v14l11-7z"></path></svg></span>
+            </button>
+            <div data-dc-tpl="102" style="padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 8px; flex: 1 1 0%;">
+              <span data-dc-tpl="103" style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: rgb(148, 163, 184);"><span class="sc-interp">Jumping</span></span>
+              <h3 data-dc-tpl="104" style="font-family: Sora; font-weight: 700; font-size: 17px; line-height: 1.28; margin: 0px;"><span class="sc-interp">Intro to Jumps &amp; Bar Awareness</span></h3>
+              <p data-dc-tpl="105" style="font-size: 13.5px; color: rgb(91, 107, 130); margin: 0px; line-height: 1.5; flex: 1 1 0%;"><span class="sc-interp">Teach clean take-offs and body awareness over a single low jump.</span></p>
+              <div data-dc-tpl="106" style="display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 6px;">
+                <button data-dc-tpl="107" style="font-family: Sora; font-weight: 700; font-size: 13px; color: rgb(37, 99, 235); background: none; border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; padding: 0px; cursor: pointer;"><span class="sc-interp">Watch lesson →</span></button>
+                <button data-dc-tpl="108" style="font-family: inherit; font-weight: 700; font-size: 12px; padding: 6px 11px; border-radius: 8px; cursor: pointer; background: rgb(255, 255, 255); color: rgb(91, 107, 130); border: 1px solid rgb(226, 232, 242);"><span class="sc-interp">Mark done</span></button>
+              </div>
+            </div>
+          </div>
+        
+          <div data-dc-tpl="94" class="scp7" style="background: rgb(255, 255, 255); border: 1px solid rgb(232, 237, 245); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; box-shadow: rgba(10, 31, 60, 0.04) 0px 1px 2px;">
+            <button data-dc-tpl="95" style="position: relative; border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; padding: 0px; cursor: pointer; display: block; height: 172px; background: linear-gradient(135deg, rgb(52, 211, 153), rgb(5, 150, 105));">
+              <span data-dc-tpl="96" style="position: absolute; inset: 0px; background: radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.28), transparent 52%);"></span>
+              <span data-dc-tpl="97" style="position: absolute; top: 12px; inset-inline-start: 12px; background: rgba(255, 255, 255, 0.94); color: rgb(4, 120, 87); font-size: 11px; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; padding: 5px 10px; border-radius: 999px;"><span class="sc-interp">Beginner</span></span>
+              <span data-dc-tpl="98" style="position: absolute; bottom: 12px; inset-inline-end: 12px; background: rgba(10, 31, 60, 0.8); color: rgb(255, 255, 255); font-size: 12px; font-weight: 600; padding: 4px 9px; border-radius: 7px;"><span class="sc-interp">6:48</span></span>
+              <span data-dc-tpl="99" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 58px; height: 58px; border-radius: 50%; background: rgba(255, 255, 255, 0.96); display: flex; align-items: center; justify-content: center; box-shadow: rgba(10, 31, 60, 0.28) 0px 10px 26px;"><svg data-dc-tpl="100" width="20" height="20" viewBox="0 0 24 24" fill="#0A1F3C"><path data-dc-tpl="101" d="M8 5v14l11-7z"></path></svg></span>
+            </button>
+            <div data-dc-tpl="102" style="padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 8px; flex: 1 1 0%;">
+              <span data-dc-tpl="103" style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: rgb(148, 163, 184);"><span class="sc-interp">Tunnels</span></span>
+              <h3 data-dc-tpl="104" style="font-family: Sora; font-weight: 700; font-size: 17px; line-height: 1.28; margin: 0px;"><span class="sc-interp">Tunnel Basics: Send &amp; Recall</span></h3>
+              <p data-dc-tpl="105" style="font-size: 13.5px; color: rgb(91, 107, 130); margin: 0px; line-height: 1.5; flex: 1 1 0%;"><span class="sc-interp">Build a fast, happy tunnel using straight-line sends and food rewards.</span></p>
+              <div data-dc-tpl="106" style="display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 6px;">
+                <button data-dc-tpl="107" style="font-family: Sora; font-weight: 700; font-size: 13px; color: rgb(37, 99, 235); background: none; border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; padding: 0px; cursor: pointer;"><span class="sc-interp">Watch lesson →</span></button>
+                <button data-dc-tpl="108" style="font-family: inherit; font-weight: 700; font-size: 12px; padding: 6px 11px; border-radius: 8px; cursor: pointer; background: rgb(255, 255, 255); color: rgb(91, 107, 130); border: 1px solid rgb(226, 232, 242);"><span class="sc-interp">Mark done</span></button>
+              </div>
+            </div>
+          </div>
+        
+          <div data-dc-tpl="94" class="scp7" style="background: rgb(255, 255, 255); border: 1px solid rgb(232, 237, 245); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; box-shadow: rgba(10, 31, 60, 0.04) 0px 1px 2px;">
+            <button data-dc-tpl="95" style="position: relative; border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; padding: 0px; cursor: pointer; display: block; height: 172px; background: linear-gradient(135deg, rgb(52, 211, 153), rgb(5, 150, 105));">
+              <span data-dc-tpl="96" style="position: absolute; inset: 0px; background: radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.28), transparent 52%);"></span>
+              <span data-dc-tpl="97" style="position: absolute; top: 12px; inset-inline-start: 12px; background: rgba(255, 255, 255, 0.94); color: rgb(4, 120, 87); font-size: 11px; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; padding: 5px 10px; border-radius: 999px;"><span class="sc-interp">Beginner</span></span>
+              <span data-dc-tpl="98" style="position: absolute; bottom: 12px; inset-inline-end: 12px; background: rgba(10, 31, 60, 0.8); color: rgb(255, 255, 255); font-size: 12px; font-weight: 600; padding: 4px 9px; border-radius: 7px;"><span class="sc-interp">8:20</span></span>
+              <span data-dc-tpl="99" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 58px; height: 58px; border-radius: 50%; background: rgba(255, 255, 255, 0.96); display: flex; align-items: center; justify-content: center; box-shadow: rgba(10, 31, 60, 0.28) 0px 10px 26px;"><svg data-dc-tpl="100" width="20" height="20" viewBox="0 0 24 24" fill="#0A1F3C"><path data-dc-tpl="101" d="M8 5v14l11-7z"></path></svg></span>
+            </button>
+            <div data-dc-tpl="102" style="padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 8px; flex: 1 1 0%;">
+              <span data-dc-tpl="103" style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: rgb(148, 163, 184);"><span class="sc-interp">Motivation</span></span>
+              <h3 data-dc-tpl="104" style="font-family: Sora; font-weight: 700; font-size: 17px; line-height: 1.28; margin: 0px;"><span class="sc-interp">Recall &amp; Reward Foundations</span></h3>
+              <p data-dc-tpl="105" style="font-size: 13.5px; color: rgb(91, 107, 130); margin: 0px; line-height: 1.5; flex: 1 1 0%;"><span class="sc-interp">Create a powerful recall that keeps your dog connected on course.</span></p>
+              <div data-dc-tpl="106" style="display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 6px;">
+                <button data-dc-tpl="107" style="font-family: Sora; font-weight: 700; font-size: 13px; color: rgb(37, 99, 235); background: none; border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; padding: 0px; cursor: pointer;"><span class="sc-interp">Watch lesson →</span></button>
+                <button data-dc-tpl="108" style="font-family: inherit; font-weight: 700; font-size: 12px; padding: 6px 11px; border-radius: 8px; cursor: pointer; background: rgb(255, 255, 255); color: rgb(91, 107, 130); border: 1px solid rgb(226, 232, 242);"><span class="sc-interp">Mark done</span></button>
+              </div>
+            </div>
+          </div>
+        
+          <div data-dc-tpl="94" class="scp7" style="background: rgb(255, 255, 255); border: 1px solid rgb(232, 237, 245); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; box-shadow: rgba(10, 31, 60, 0.04) 0px 1px 2px;">
+            <button data-dc-tpl="95" style="position: relative; border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; padding: 0px; cursor: pointer; display: block; height: 172px; background: linear-gradient(135deg, rgb(96, 165, 250), rgb(37, 99, 235));">
+              <span data-dc-tpl="96" style="position: absolute; inset: 0px; background: radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.28), transparent 52%);"></span>
+              <span data-dc-tpl="97" style="position: absolute; top: 12px; inset-inline-start: 12px; background: rgba(255, 255, 255, 0.94); color: rgb(29, 78, 216); font-size: 11px; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; padding: 5px 10px; border-radius: 999px;"><span class="sc-interp">Intermediate</span></span>
+              <span data-dc-tpl="98" style="position: absolute; bottom: 12px; inset-inline-end: 12px; background: rgba(10, 31, 60, 0.8); color: rgb(255, 255, 255); font-size: 12px; font-weight: 600; padding: 4px 9px; border-radius: 7px;"><span class="sc-interp">11:30</span></span>
+              <span data-dc-tpl="99" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 58px; height: 58px; border-radius: 50%; background: rgba(255, 255, 255, 0.96); display: flex; align-items: center; justify-content: center; box-shadow: rgba(10, 31, 60, 0.28) 0px 10px 26px;"><svg data-dc-tpl="100" width="20" height="20" viewBox="0 0 24 24" fill="#0A1F3C"><path data-dc-tpl="101" d="M8 5v14l11-7z"></path></svg></span>
+            </button>
+            <div data-dc-tpl="102" style="padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 8px; flex: 1 1 0%;">
+              <span data-dc-tpl="103" style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: rgb(148, 163, 184);"><span class="sc-interp">Weaves</span></span>
+              <h3 data-dc-tpl="104" style="font-family: Sora; font-weight: 700; font-size: 17px; line-height: 1.28; margin: 0px;"><span class="sc-interp">Reliable Weave Pole Entries</span></h3>
+              <p data-dc-tpl="105" style="font-size: 13.5px; color: rgb(91, 107, 130); margin: 0px; line-height: 1.5; flex: 1 1 0%;"><span class="sc-interp">Train independent entries from any angle using the 2x2 method.</span></p>
+              <div data-dc-tpl="106" style="display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 6px;">
+                <button data-dc-tpl="107" style="font-family: Sora; font-weight: 700; font-size: 13px; color: rgb(37, 99, 235); background: none; border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; padding: 0px; cursor: pointer;"><span class="sc-interp">Watch lesson →</span></button>
+                <button data-dc-tpl="108" style="font-family: inherit; font-weight: 700; font-size: 12px; padding: 6px 11px; border-radius: 8px; cursor: pointer; background: rgb(255, 255, 255); color: rgb(91, 107, 130); border: 1px solid rgb(226, 232, 242);"><span class="sc-interp">Mark done</span></button>
+              </div>
+            </div>
+          </div>
+        
+          <div data-dc-tpl="94" class="scp7" style="background: rgb(255, 255, 255); border: 1px solid rgb(232, 237, 245); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; box-shadow: rgba(10, 31, 60, 0.04) 0px 1px 2px;">
+            <button data-dc-tpl="95" style="position: relative; border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; padding: 0px; cursor: pointer; display: block; height: 172px; background: linear-gradient(135deg, rgb(96, 165, 250), rgb(37, 99, 235));">
+              <span data-dc-tpl="96" style="position: absolute; inset: 0px; background: radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.28), transparent 52%);"></span>
+              <span data-dc-tpl="97" style="position: absolute; top: 12px; inset-inline-start: 12px; background: rgba(255, 255, 255, 0.94); color: rgb(29, 78, 216); font-size: 11px; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; padding: 5px 10px; border-radius: 999px;"><span class="sc-interp">Intermediate</span></span>
+              <span data-dc-tpl="98" style="position: absolute; bottom: 12px; inset-inline-end: 12px; background: rgba(10, 31, 60, 0.8); color: rgb(255, 255, 255); font-size: 12px; font-weight: 600; padding: 4px 9px; border-radius: 7px;"><span class="sc-interp">10:15</span></span>
+              <span data-dc-tpl="99" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 58px; height: 58px; border-radius: 50%; background: rgba(255, 255, 255, 0.96); display: flex; align-items: center; justify-content: center; box-shadow: rgba(10, 31, 60, 0.28) 0px 10px 26px;"><svg data-dc-tpl="100" width="20" height="20" viewBox="0 0 24 24" fill="#0A1F3C"><path data-dc-tpl="101" d="M8 5v14l11-7z"></path></svg></span>
+            </button>
+            <div data-dc-tpl="102" style="padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 8px; flex: 1 1 0%;">
+              <span data-dc-tpl="103" style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: rgb(148, 163, 184);"><span class="sc-interp">Handling</span></span>
+              <h3 data-dc-tpl="104" style="font-family: Sora; font-weight: 700; font-size: 17px; line-height: 1.28; margin: 0px;"><span class="sc-interp">Tight Turns &amp; Wraps</span></h3>
+              <p data-dc-tpl="105" style="font-size: 13.5px; color: rgb(91, 107, 130); margin: 0px; line-height: 1.5; flex: 1 1 0%;"><span class="sc-interp">Shave seconds off your run with tighter wraps and clearer cues.</span></p>
+              <div data-dc-tpl="106" style="display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 6px;">
+                <button data-dc-tpl="107" style="font-family: Sora; font-weight: 700; font-size: 13px; color: rgb(37, 99, 235); background: none; border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; padding: 0px; cursor: pointer;"><span class="sc-interp">Watch lesson →</span></button>
+                <button data-dc-tpl="108" style="font-family: inherit; font-weight: 700; font-size: 12px; padding: 6px 11px; border-radius: 8px; cursor: pointer; background: rgb(255, 255, 255); color: rgb(91, 107, 130); border: 1px solid rgb(226, 232, 242);"><span class="sc-interp">Mark done</span></button>
+              </div>
+            </div>
+          </div>
+        
+      </div>
+    </section>
+
+    
+    <section data-dc-tpl="110" style="max-width: 1200px; margin: 0px auto; padding: 64px 24px;">
+      <div data-dc-tpl="111" style="background: linear-gradient(135deg, rgb(10, 31, 60), rgb(21, 49, 92)); border-radius: 28px; padding: 48px clamp(24px, 5vw, 56px); color: rgb(255, 255, 255);">
+        <span data-dc-tpl="112" style="font-size: 13px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: rgb(200, 240, 49);"><span class="sc-interp">How it works</span></span>
+        <h2 data-dc-tpl="113" style="font-family: Sora, sans-serif; font-weight: 800; font-size: clamp(26px, 3.4vw, 38px); letter-spacing: -0.02em; margin: 10px 0px 36px;"><span class="sc-interp">Your path from first jump to finish line</span></h2>
+        <div data-dc-tpl="114" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px;">
+          
+            <div data-dc-tpl="116" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 18px; padding: 24px;">
+              <div data-dc-tpl="117" style="font-family: Sora; font-weight: 800; font-size: 15px; color: rgb(10, 31, 60); background: rgb(200, 240, 49); width: 38px; height: 38px; border-radius: 11px; display: flex; align-items: center; justify-content: center;"><span class="sc-interp">1</span></div>
+              <h3 data-dc-tpl="118" style="font-family: Sora; font-weight: 700; font-size: 19px; margin: 16px 0px 8px;"><span class="sc-interp">Watch</span></h3>
+              <p data-dc-tpl="119" style="font-size: 14.5px; color: rgb(183, 196, 216); line-height: 1.6; margin: 0px;"><span class="sc-interp">Pick your level and follow clear, step-by-step video lessons at your own pace.</span></p>
+            </div>
+          
+            <div data-dc-tpl="116" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 18px; padding: 24px;">
+              <div data-dc-tpl="117" style="font-family: Sora; font-weight: 800; font-size: 15px; color: rgb(10, 31, 60); background: rgb(200, 240, 49); width: 38px; height: 38px; border-radius: 11px; display: flex; align-items: center; justify-content: center;"><span class="sc-interp">2</span></div>
+              <h3 data-dc-tpl="118" style="font-family: Sora; font-weight: 700; font-size: 19px; margin: 16px 0px 8px;"><span class="sc-interp">Practice</span></h3>
+              <p data-dc-tpl="119" style="font-size: 14.5px; color: rgb(183, 196, 216); line-height: 1.6; margin: 0px;"><span class="sc-interp">Take one skill to your dog, reward often, and build it before moving on.</span></p>
+            </div>
+          
+            <div data-dc-tpl="116" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 18px; padding: 24px;">
+              <div data-dc-tpl="117" style="font-family: Sora; font-weight: 800; font-size: 15px; color: rgb(10, 31, 60); background: rgb(200, 240, 49); width: 38px; height: 38px; border-radius: 11px; display: flex; align-items: center; justify-content: center;"><span class="sc-interp">3</span></div>
+              <h3 data-dc-tpl="118" style="font-family: Sora; font-weight: 700; font-size: 19px; margin: 16px 0px 8px;"><span class="sc-interp">Compete</span></h3>
+              <p data-dc-tpl="119" style="font-size: 14.5px; color: rgb(183, 196, 216); line-height: 1.6; margin: 0px;"><span class="sc-interp">String skills into sequences and step into the ring with confidence.</span></p>
+            </div>
+          
+        </div>
+      </div>
+    </section>
+    
+
+    <section data-dc-tpl="120" style="max-width: 1200px; margin: 0px auto; padding: 20px 24px 24px;">
+      <div data-dc-tpl="121" style="display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 30px;">
+        <div data-dc-tpl="122">
+          <span data-dc-tpl="123" style="font-size: 13px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: rgb(37, 99, 235);"><span class="sc-interp">From the blog</span></span>
+          <h2 data-dc-tpl="124" style="font-family: Sora, sans-serif; font-weight: 800; font-size: clamp(28px, 3.5vw, 40px); letter-spacing: -0.02em; margin: 10px 0px 0px;"><span class="sc-interp">Read &amp; learn</span></h2>
+        </div>
+        <button data-dc-tpl="125" class="scp6" style="font-family: Sora; font-weight: 700; font-size: 14px; color: rgb(37, 99, 235); background: rgb(234, 241, 254); border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; padding: 11px 18px; border-radius: 11px; cursor: pointer;"><span class="sc-interp">All articles →</span></button>
+      </div>
+      <div data-dc-tpl="126" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px;">
+        
+          <article data-dc-tpl="128" class="scp7" style="background: rgb(255, 255, 255); border: 1px solid rgb(232, 237, 245); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; box-shadow: rgba(10, 31, 60, 0.04) 0px 1px 2px;">
+            <div data-dc-tpl="129" style="height: 150px; background: linear-gradient(135deg, rgb(52, 211, 153), rgb(5, 150, 105)); position: relative;">
+              <span data-dc-tpl="130" style="position: absolute; inset: 0px; background: radial-gradient(circle at 75% 15%, rgba(255, 255, 255, 0.25), transparent 55%);"></span>
+              <span data-dc-tpl="131" style="position: absolute; top: 14px; inset-inline-start: 14px; background: rgba(255, 255, 255, 0.94); color: rgb(5, 150, 105); font-size: 11px; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; padding: 5px 11px; border-radius: 999px;"><span class="sc-interp">Health</span></span>
+            </div>
+            <div data-dc-tpl="132" style="padding: 18px 20px 20px; display: flex; flex-direction: column; gap: 9px; flex: 1 1 0%;">
+              <h3 data-dc-tpl="133" style="font-family: Sora; font-weight: 700; font-size: 18px; line-height: 1.3; margin: 0px;"><span class="sc-interp">5 Warm-Up Routines to Prevent Injury</span></h3>
+              <p data-dc-tpl="134" style="font-size: 14px; color: rgb(91, 107, 130); line-height: 1.55; margin: 0px; flex: 1 1 0%;"><span class="sc-interp">A few minutes of the right warm-up keeps your dog supple and cuts injury risk before a run.</span></p>
+              <div data-dc-tpl="135" style="display: flex; align-items: center; gap: 10px; font-size: 12.5px; color: rgb(148, 163, 184); font-weight: 600; margin-top: 4px;"><span class="sc-interp">Jun 12, 2026</span><span data-dc-tpl="136" style="width: 3px; height: 3px; border-radius: 50%; background: rgb(203, 213, 225);"></span><span class="sc-interp">5 min read</span></div>
+            </div>
+          </article>
+        
+          <article data-dc-tpl="128" class="scp7" style="background: rgb(255, 255, 255); border: 1px solid rgb(232, 237, 245); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; box-shadow: rgba(10, 31, 60, 0.04) 0px 1px 2px;">
+            <div data-dc-tpl="129" style="height: 150px; background: linear-gradient(135deg, rgb(96, 165, 250), rgb(37, 99, 235)); position: relative;">
+              <span data-dc-tpl="130" style="position: absolute; inset: 0px; background: radial-gradient(circle at 75% 15%, rgba(255, 255, 255, 0.25), transparent 55%);"></span>
+              <span data-dc-tpl="131" style="position: absolute; top: 14px; inset-inline-start: 14px; background: rgba(255, 255, 255, 0.94); color: rgb(37, 99, 235); font-size: 11px; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; padding: 5px 11px; border-radius: 999px;"><span class="sc-interp">Training</span></span>
+            </div>
+            <div data-dc-tpl="132" style="padding: 18px 20px 20px; display: flex; flex-direction: column; gap: 9px; flex: 1 1 0%;">
+              <h3 data-dc-tpl="133" style="font-family: Sora; font-weight: 700; font-size: 18px; line-height: 1.3; margin: 0px;"><span class="sc-interp">Choosing the Right Reward for Your Dog</span></h3>
+              <p data-dc-tpl="134" style="font-size: 14px; color: rgb(91, 107, 130); line-height: 1.55; margin: 0px; flex: 1 1 0%;"><span class="sc-interp">Food, toy, or play? How to find the reward that builds real drive and focus.</span></p>
+              <div data-dc-tpl="135" style="display: flex; align-items: center; gap: 10px; font-size: 12.5px; color: rgb(148, 163, 184); font-weight: 600; margin-top: 4px;"><span class="sc-interp">Jun 5, 2026</span><span data-dc-tpl="136" style="width: 3px; height: 3px; border-radius: 50%; background: rgb(203, 213, 225);"></span><span class="sc-interp">4 min read</span></div>
+            </div>
+          </article>
+        
+          <article data-dc-tpl="128" class="scp7" style="background: rgb(255, 255, 255); border: 1px solid rgb(232, 237, 245); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; box-shadow: rgba(10, 31, 60, 0.04) 0px 1px 2px;">
+            <div data-dc-tpl="129" style="height: 150px; background: linear-gradient(135deg, rgb(167, 139, 250), rgb(109, 40, 217)); position: relative;">
+              <span data-dc-tpl="130" style="position: absolute; inset: 0px; background: radial-gradient(circle at 75% 15%, rgba(255, 255, 255, 0.25), transparent 55%);"></span>
+              <span data-dc-tpl="131" style="position: absolute; top: 14px; inset-inline-start: 14px; background: rgba(255, 255, 255, 0.94); color: rgb(109, 40, 217); font-size: 11px; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; padding: 5px 11px; border-radius: 999px;"><span class="sc-interp">Strategy</span></span>
+            </div>
+            <div data-dc-tpl="132" style="padding: 18px 20px 20px; display: flex; flex-direction: column; gap: 9px; flex: 1 1 0%;">
+              <h3 data-dc-tpl="133" style="font-family: Sora; font-weight: 700; font-size: 18px; line-height: 1.3; margin: 0px;"><span class="sc-interp">How to Read a Course Map Like a Pro</span></h3>
+              <p data-dc-tpl="134" style="font-size: 14px; color: rgb(91, 107, 130); line-height: 1.55; margin: 0px; flex: 1 1 0%;"><span class="sc-interp">Turn a confusing tangle of numbers into a clear, fast handling plan.</span></p>
+              <div data-dc-tpl="135" style="display: flex; align-items: center; gap: 10px; font-size: 12.5px; color: rgb(148, 163, 184); font-weight: 600; margin-top: 4px;"><span class="sc-interp">May 28, 2026</span><span data-dc-tpl="136" style="width: 3px; height: 3px; border-radius: 50%; background: rgb(203, 213, 225);"></span><span class="sc-interp">7 min read</span></div>
+            </div>
+          </article>
+        
+      </div>
+    </section>
+  </main>
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+  <section data-dc-tpl="368" style="max-width: 1200px; margin: 0px auto; padding: 20px 24px 64px;">
+    <div data-dc-tpl="369" style="background: linear-gradient(135deg, rgb(37, 99, 235), rgb(30, 58, 138)); border-radius: 26px; padding: clamp(28px, 5vw, 48px); color: rgb(255, 255, 255); display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 28px; align-items: center;">
+      <div data-dc-tpl="370">
+        <h2 data-dc-tpl="371" style="font-family: Sora, sans-serif; font-weight: 800; font-size: clamp(24px, 3vw, 32px); letter-spacing: -0.02em; margin: 0px;"><span class="sc-interp">Never miss a new lesson</span></h2>
+        <p data-dc-tpl="372" style="font-size: 16px; color: rgb(214, 226, 247); line-height: 1.6; margin: 12px 0px 0px; max-width: 420px;"><span class="sc-interp">Get an email when fresh tutorials and articles go live. No spam, just better runs.</span></p>
+      </div>
+      
+      
+        <form data-dc-tpl="376" style="display: flex; gap: 10px; flex-wrap: wrap;">
+          <input data-dc-tpl="377" placeholder="you@email.com" value="" style="flex: 1 1 0%; min-width: 180px; font-family: inherit; font-size: 15px; padding: 15px 18px; border-radius: 13px; border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; outline: none; color: rgb(10, 31, 60);">
+          <button data-dc-tpl="378" type="submit" class="scp3" style="font-family: Sora; font-weight: 700; font-size: 15px; background: rgb(200, 240, 49); color: rgb(10, 31, 60); border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; padding: 15px 24px; border-radius: 13px; cursor: pointer;"><span class="sc-interp">Subscribe</span></button>
+        </form>
+      
+    </div>
+  </section>
+  
+
+  <footer data-dc-tpl="379" style="background: rgb(7, 18, 38); color: rgb(183, 196, 216);">
+    <div data-dc-tpl="380" style="max-width: 1200px; margin: 0px auto; padding: 56px 24px 28px; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 32px;">
+      <div data-dc-tpl="381" style="grid-column: span 1; min-width: 200px;">
+        <div data-dc-tpl="382" style="display: flex; align-items: center; gap: 11px;">
+          <span data-dc-tpl="383" style="width: 40px; height: 40px; border-radius: 11px; background: linear-gradient(135deg, rgb(37, 99, 235), rgb(10, 31, 60)); display: flex; align-items: center; justify-content: center; flex: 0 0 auto;"><svg data-dc-tpl="384" width="22" height="22" viewBox="0 0 24 24" fill="none"><path data-dc-tpl="385" d="M3 18h18M6 18V9M18 18V9M6 12h12" stroke="#C8F031" stroke-width="2.3" stroke-linecap="round"></path></svg></span>
+          <span data-dc-tpl="386" style="font-family: Sora; font-weight: 800; font-size: 18px; color: rgb(255, 255, 255);">Agility Hub</span>
+        </div>
+        <p data-dc-tpl="387" style="font-size: 14px; line-height: 1.6; margin: 16px 0px 0px; max-width: 240px;"><span class="sc-interp">Free dog-agility tutorials and articles for handlers at every level.</span></p>
+      </div>
+      <div data-dc-tpl="388">
+        <div data-dc-tpl="389" style="font-family: Sora; font-weight: 700; font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; color: rgb(255, 255, 255); margin-bottom: 14px;"><span class="sc-interp">Explore</span></div>
+        <div data-dc-tpl="390" style="display: flex; flex-direction: column; gap: 11px; font-size: 14.5px;">
+          <button data-dc-tpl="391" class="scp9" style="background: none; border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; color: rgb(183, 196, 216); text-align: start; padding: 0px; cursor: pointer; font-family: inherit; font-size: 14.5px;"><span class="sc-interp">Home</span></button>
+          <button data-dc-tpl="392" class="scp9" style="background: none; border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; color: rgb(183, 196, 216); text-align: start; padding: 0px; cursor: pointer; font-family: inherit; font-size: 14.5px;"><span class="sc-interp">Video library</span></button>
+          <button data-dc-tpl="393" class="scp9" style="background: none; border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; color: rgb(183, 196, 216); text-align: start; padding: 0px; cursor: pointer; font-family: inherit; font-size: 14.5px;"><span class="sc-interp">Blog</span></button>
+          <button data-dc-tpl="394" class="scp9" style="background: none; border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; color: rgb(183, 196, 216); text-align: start; padding: 0px; cursor: pointer; font-family: inherit; font-size: 14.5px;"><span class="sc-interp">Classes</span></button>
+          <button data-dc-tpl="395" class="scp9" style="background: none; border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; color: rgb(183, 196, 216); text-align: start; padding: 0px; cursor: pointer; font-family: inherit; font-size: 14.5px;"><span class="sc-interp">Trainers</span></button>
+          <button data-dc-tpl="396" class="scp9" style="background: none; border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; color: rgb(183, 196, 216); text-align: start; padding: 0px; cursor: pointer; font-family: inherit; font-size: 14.5px;"><span class="sc-interp">About</span></button>
+          <button data-dc-tpl="397" class="scp9" style="background: none; border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; color: rgb(183, 196, 216); text-align: start; padding: 0px; cursor: pointer; font-family: inherit; font-size: 14.5px;"><span class="sc-interp">Contact</span></button>
+        </div>
+      </div>
+      <div data-dc-tpl="398">
+        <div data-dc-tpl="399" style="font-family: Sora; font-weight: 700; font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; color: rgb(255, 255, 255); margin-bottom: 14px;"><span class="sc-interp">Levels</span></div>
+        <div data-dc-tpl="400" style="display: flex; flex-direction: column; gap: 11px; font-size: 14.5px;">
+          <button data-dc-tpl="401" class="scp9" style="background: none; border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; color: rgb(183, 196, 216); text-align: start; padding: 0px; cursor: pointer; font-family: inherit; font-size: 14.5px;"><span class="sc-interp">Beginner</span></button>
+          <button data-dc-tpl="402" class="scp9" style="background: none; border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; color: rgb(183, 196, 216); text-align: start; padding: 0px; cursor: pointer; font-family: inherit; font-size: 14.5px;"><span class="sc-interp">Intermediate</span></button>
+          <button data-dc-tpl="403" class="scp9" style="background: none; border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; color: rgb(183, 196, 216); text-align: start; padding: 0px; cursor: pointer; font-family: inherit; font-size: 14.5px;"><span class="sc-interp">Advanced</span></button>
+        </div>
+      </div>
+      <div data-dc-tpl="404">
+        <div data-dc-tpl="405" style="font-family: Sora; font-weight: 700; font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; color: rgb(255, 255, 255); margin-bottom: 14px;"><span class="sc-interp">Connect</span></div>
+        <div data-dc-tpl="406" style="display: flex; flex-direction: column; gap: 11px; font-size: 14.5px;">
+          <span data-dc-tpl="407" style="color: rgb(107, 124, 147);"><span class="sc-interp">YouTube — add link</span></span>
+          <span data-dc-tpl="408" style="color: rgb(107, 124, 147);"><span class="sc-interp">Instagram — add link</span></span>
+          <span data-dc-tpl="409" style="color: rgb(107, 124, 147);"><span class="sc-interp">Email — add address</span></span>
+        </div>
+      </div>
+    </div>
+    <div data-dc-tpl="410" style="border-top: 1px solid rgba(255, 255, 255, 0.08);">
+      <div data-dc-tpl="411" style="max-width: 1200px; margin: 0px auto; padding: 20px 24px; font-size: 13px; color: rgb(107, 124, 147); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+        <span data-dc-tpl="412"><span class="sc-interp">© 2026 Agility Hub · Add your business name here</span></span>
+        <span data-dc-tpl="413"><span class="sc-interp">Built as a fast, free static website</span></span>
+      </div>
+    </div>
+  </footer>
+
+  
+  </div></div></div>
+<script id="dc-prerender-swap">(function(){var p=document.getElementById('dc-prerender');if(!p)return;var go=function(){if(p&&p.parentNode)p.parentNode.removeChild(p);};var o=new MutationObserver(function(){var l=document.getElementById('dc-root');if(l&&l.firstElementChild){o.disconnect();go();}});o.observe(document.documentElement,{childList:true,subtree:true});setTimeout(function(){o.disconnect();},15000);})();</script>
+
 <script type="text/x-dc" data-dc-script="" data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:900},&quot;defaultLang&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;en&quot;,&quot;options&quot;:[&quot;en&quot;,&quot;he&quot;],&quot;tsType&quot;:&quot;string&quot;},&quot;showRoadmap&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;showNewsletter&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
 class Component extends DCLogic {
   state = { page:'home', level:'All', query:'', activeVideo:null, watched:{}, email:'', subscribed:false, lang:'en', faqOpen:null, cName:'', cEmail:'', cMessage:'', contactSent:false };
@@ -1571,4 +2608,6 @@ class Component extends DCLogic {
 </script>
 
 
-</body></html>
+
+</body>
+</html>

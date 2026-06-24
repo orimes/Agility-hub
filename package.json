@@ -1,0 +1,24 @@
+{
+  "name": "agility-hub",
+  "version": "1.0.0",
+  "description": "Static site. `index.html` is plain semantic HTML served on the first byte; fonts and the `dc-runtime` client renderer load as external, cacheable files under `assets/`.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/orimes/Agility-hub.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/orimes/Agility-hub/issues"
+  },
+  "homepage": "https://github.com/orimes/Agility-hub#readme",
+  "dependencies": {
+    "puppeteer-core": "^25.2.0"
+  }
+}
